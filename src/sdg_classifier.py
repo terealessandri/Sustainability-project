@@ -57,14 +57,14 @@ class SDGClassifier:
     without requiring labeled training data.
 
     Attributes:
-        model_name: HuggingFace model ID (default: typeform/distilbart-mnli-12-3)
+        model_name: HuggingFace model ID (default: cross-encoder/nli-MiniLM2-L6-H768)
         classifier: Transformers zero-shot classification pipeline
         sdg_labels: List of SDG IDs
         sdg_descriptions: Dict mapping SDG IDs to full descriptions
         confidence_threshold: Minimum confidence score to accept classification
     """
 
-    def __init__(self, model_name: str = "typeform/distilbart-mnli-12-3",
+    def __init__(self, model_name: str = "cross-encoder/nli-MiniLM2-L6-H768",
                  confidence_threshold: float = 0.4):
         """
         Initialize SDG classifier.
@@ -91,7 +91,7 @@ class SDGClassifier:
     def load_model(self):
         """
         Load zero-shot classification model.
-        Downloads ~300MB on first call.
+        Downloads ~66MB on first call.
         """
         if self.classifier is None:
             print(f"Loading zero-shot classifier: {self.model_name}...")
