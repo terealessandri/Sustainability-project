@@ -53,18 +53,18 @@ class SDGClassifier:
     """
     Zero-shot classifier for mapping text to UN Sustainable Development Goals.
 
-    Uses BART-large-mnli to classify text chunks into one or more of the 17 SDGs
+    Uses a zero-shot NLI model to classify text chunks into one or more of the 17 SDGs
     without requiring labeled training data.
 
     Attributes:
-        model_name: HuggingFace model ID (default: facebook/bart-large-mnli)
+        model_name: HuggingFace model ID (default: typeform/distilbart-mnli-12-3)
         classifier: Transformers zero-shot classification pipeline
         sdg_labels: List of SDG IDs
         sdg_descriptions: Dict mapping SDG IDs to full descriptions
         confidence_threshold: Minimum confidence score to accept classification
     """
 
-    def __init__(self, model_name: str = "facebook/bart-large-mnli",
+    def __init__(self, model_name: str = "typeform/distilbart-mnli-12-3",
                  confidence_threshold: float = 0.4):
         """
         Initialize SDG classifier.
@@ -90,12 +90,12 @@ class SDGClassifier:
 
     def load_model(self):
         """
-        Load BART-large-mnli model for zero-shot classification.
-        Downloads ~1.6GB on first call. Uses GPU if available.
+        Load zero-shot classification model.
+        Downloads ~300MB on first call.
         """
         if self.classifier is None:
             print(f"Loading zero-shot classifier: {self.model_name}...")
-            print("(This may take a few minutes on first run - downloading ~1.6GB)")
+            print("(This may take a moment on first run - downloading ~300MB)")
             self.classifier = _load_zero_shot_pipeline(self.model_name)
             print(f"✓ Model loaded: {self.model_name}")
 
