@@ -304,27 +304,45 @@ class SimilarityAnalyzer:
         if not other_chunks:
             return 1.0  # Only source, by definition unique
 
-        # Calculate average similarity to all other chunks
+        # Fast path: use pre-computed embeddings from FAISS index via matrix multiply
+        # Avoids re-embedding every chunk pair individually (O(n*m) model calls → O(n) reconstruct)
+        em = self.embedding_manager
+        if em is not None and em.index is not None and em.chunks:
+            n = em.index.ntotal
+            dim = em.dimension
+
+            # Reconstruct all embeddings from FAISS index in one shot
+            all_emb = np.zeros((n, dim), dtype=np.float32)
+            for i in range(n):
+                em.index.reconstruct(i, all_emb[i])
+
+            # Map chunk_id → position in index
+            id_to_pos = {c.get("chunk_id"): i for i, c in enumerate(em.chunks)}
+
+            target_pos = [id_to_pos[c["chunk_id"]] for c in target_chunks
+                          if c.get("chunk_id") in id_to_pos]
+            other_pos = [id_to_pos[c["chunk_id"]] for c in other_chunks
+                         if c.get("chunk_id") in id_to_pos]
+
+            if target_pos and other_pos:
+                t_emb = all_emb[target_pos]  # (n_target, dim)
+                o_emb = all_emb[other_pos]   # (n_other, dim)
+                # Embeddings in FAISS are L2-normalized → dot product = cosine similarity
+                sim_matrix = t_emb @ o_emb.T  # (n_target, n_other)
+                return float(1.0 - np.mean(sim_matrix))
+
+        # Slow fallback: sample and compare (capped to avoid hanging)
+        import random
+        MAX_SAMPLES = 20
+        sample_target = random.sample(target_chunks, min(MAX_SAMPLES, len(target_chunks)))
+        sample_other = random.sample(other_chunks, min(MAX_SAMPLES, len(other_chunks)))
+
         similarities = []
+        for tc in sample_target:
+            sims = [self.compare_texts(tc["text"], oc["text"]) for oc in sample_other]
+            similarities.append(np.mean(sims))
 
-        for target_chunk in target_chunks:
-            chunk_similarities = []
-
-            for other_chunk in other_chunks:
-                sim = self.compare_texts(target_chunk["text"], other_chunk["text"])
-                chunk_similarities.append(sim)
-
-            # Average similarity for this chunk
-            avg_sim = np.mean(chunk_similarities)
-            similarities.append(avg_sim)
-
-        # Overall average similarity to other sources
-        overall_similarity = np.mean(similarities)
-
-        # Uniqueness is inverse of similarity
-        uniqueness = 1.0 - overall_similarity
-
-        return float(uniqueness)
+        return float(1.0 - np.mean(similarities))
 
     def format_similarity_report(self, classified_chunks: List[Dict],
                                 sdg_id: Optional[str] = None) -> str:

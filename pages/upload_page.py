@@ -125,6 +125,8 @@ def process_reports(uploaded_files):
             # Mark as complete
             st.session_state.processing_complete = True
             st.session_state.uploaded_files = [f.name for f in uploaded_files]
+            # Invalidate cached greenwash comparison (new data uploaded)
+            st.session_state.pop("greenwash_comparison", None)
 
             st.balloons()
             st.success("🎉 **All processing complete!** Navigate to other pages to explore results.")

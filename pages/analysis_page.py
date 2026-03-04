@@ -28,9 +28,11 @@ def render():
     # Get unique sources
     sources = list(set(c.get("source") for c in enriched_chunks))
 
-    # Calculate scores
-    with st.spinner("Calculating transparency scores..."):
-        comparison = scorer.compare_documents(enriched_chunks)
+    # Calculate scores — cache in session_state to avoid recomputation on page reloads
+    if "greenwash_comparison" not in st.session_state:
+        with st.spinner("Calculating transparency scores..."):
+            st.session_state.greenwash_comparison = scorer.compare_documents(enriched_chunks)
+    comparison = st.session_state.greenwash_comparison
 
     # Overall statistics
     st.markdown("### 📊 Overall Statistics")
@@ -176,8 +178,9 @@ def render():
     # Export reports
     st.markdown("### 📥 Export Report")
 
-    # Generate full report text
-    report_text = scorer.format_score_report(enriched_chunks, source=None)
+    # Generate full report text — pass precomputed comparison to avoid double computation
+    report_text = scorer.format_score_report(enriched_chunks, source=None,
+                                             precomputed_comparison=comparison)
 
     st.download_button(
         label="📄 Download Full Report (TXT)",

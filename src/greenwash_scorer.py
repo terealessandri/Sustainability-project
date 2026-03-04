@@ -430,13 +430,16 @@ class GreenwashScorer:
         }
 
     def format_score_report(self, enriched_chunks: List[Dict],
-                           source: Optional[str] = None) -> str:
+                           source: Optional[str] = None,
+                           precomputed_comparison: Optional[Dict] = None) -> str:
         """
         Generate human-readable transparency report.
 
         Args:
             enriched_chunks: Chunks with all enrichments
             source: Optional specific source (if None, compare all)
+            precomputed_comparison: Pre-computed result from compare_documents() to avoid
+                                    recomputation (used when source=None)
 
         Returns:
             Formatted report string
@@ -477,8 +480,9 @@ class GreenwashScorer:
                     lines.append(f"  ✅ {flag} ({count}x)")
 
         else:
-            # Comparative report
-            comparison = self.compare_documents(enriched_chunks)
+            # Comparative report — use precomputed result if available
+            comparison = precomputed_comparison if precomputed_comparison is not None \
+                else self.compare_documents(enriched_chunks)
 
             lines.append(f"\nDocuments Analyzed: {comparison['statistics']['total_documents']}")
             lines.append(f"Average Score: {comparison['statistics']['average_score']:.1f}")
