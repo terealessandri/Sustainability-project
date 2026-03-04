@@ -7,6 +7,12 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from collections import defaultdict
+from sdg_classifier import SDG_DEFINITIONS
+
+# Full label: "SDG 13 – Climate Action"
+SDG_LABEL = {sdg_id: f"{sdg_id} – {name}" for sdg_id, name, _ in SDG_DEFINITIONS}
+# Short name only: "Climate Action"
+SDG_SHORT_NAME = {sdg_id: name for sdg_id, name, _ in SDG_DEFINITIONS}
 
 
 def render():
@@ -46,7 +52,8 @@ def render():
         st.metric("Unique SDGs", len(sdg_counts))
 
     with col3:
-        st.metric("Most Common", max(sdg_counts, key=sdg_counts.get) if sdg_counts else "N/A")
+        most_common = max(sdg_counts, key=sdg_counts.get) if sdg_counts else "N/A"
+        st.metric("Most Common", SDG_SHORT_NAME.get(most_common, most_common))
 
     with col4:
         coverage_rate = len([c for c in classified_chunks if c.get("sdg_matches")]) / len(classified_chunks) * 100
@@ -56,13 +63,14 @@ def render():
     st.markdown("### 📈 SDG Distribution")
 
     if sdg_counts:
-        # Create DataFrame
+        # Create DataFrame with full labels
         df = pd.DataFrame(list(sdg_counts.items()), columns=["SDG", "Count"])
+        df["Label"] = df["SDG"].map(lambda x: SDG_LABEL.get(x, x))
         df = df.sort_values("Count", ascending=False)
 
         # Bar chart
         fig, ax = plt.subplots(figsize=(12, 6))
-        bars = ax.barh(df["SDG"], df["Count"], color='#2E7D32')
+        bars = ax.barh(df["Label"], df["Count"], color='#2E7D32')
 
         ax.set_xlabel("Number of Mentions", fontsize=12)
         ax.set_ylabel("SDG", fontsize=12)
@@ -89,6 +97,7 @@ def render():
     if len(sources) > 1:
         # Heatmap
         sdg_ids = sorted(set(sdg_id for counts in sdg_by_source.values() for sdg_id in counts.keys()))
+        sdg_col_labels = [SDG_LABEL.get(sid, sid) for sid in sdg_ids]
 
         # Create matrix
         matrix = []
@@ -96,7 +105,7 @@ def render():
             row = [sdg_by_source[source].get(sdg_id, 0) for sdg_id in sdg_ids]
             matrix.append(row)
 
-        df_heatmap = pd.DataFrame(matrix, index=sources, columns=sdg_ids)
+        df_heatmap = pd.DataFrame(matrix, index=sources, columns=sdg_col_labels)
 
         fig, ax = plt.subplots(figsize=(14, len(sources) * 0.5 + 2))
         sns.heatmap(df_heatmap, annot=True, fmt='d', cmap='Greens',
@@ -104,6 +113,7 @@ def render():
         ax.set_title("SDG Coverage Heatmap by Document", fontsize=14, fontweight='bold')
         ax.set_xlabel("SDG", fontsize=12)
         ax.set_ylabel("Document", fontsize=12)
+        ax.set_xticklabels(ax.get_xticklabels(), rotation=45, ha='right', fontsize=8)
 
         st.pyplot(fig)
 
@@ -123,7 +133,8 @@ def render():
 
     selected_sdg = st.selectbox(
         "Select an SDG to view sample mentions:",
-        options=sorted(sdg_counts.keys()) if sdg_counts else []
+        options=sorted(sdg_counts.keys()) if sdg_counts else [],
+        format_func=lambda x: SDG_LABEL.get(x, x)
     )
 
     if selected_sdg:
@@ -133,7 +144,7 @@ def render():
             if any(m["sdg_id"] == selected_sdg for m in c.get("sdg_matches", []))
         ]
 
-        st.write(f"**{selected_sdg}**: {len(matching_chunks)} mentions")
+        st.write(f"**{SDG_LABEL.get(selected_sdg, selected_sdg)}**: {len(matching_chunks)} mentions")
 
         # Show top 3 samples
         for i, chunk in enumerate(matching_chunks[:3], 1):

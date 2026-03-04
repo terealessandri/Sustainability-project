@@ -92,6 +92,11 @@ def process_reports(uploaded_files):
             # Step 1: Parse PDFs
             with st.spinner("📄 Step 1/5: Parsing PDFs..."):
                 chunks = parse_multiple_pdfs(temp_paths)
+                # Remap temp file paths to original filenames for readable source names
+                path_to_name = {tmp: f.name for tmp, f in zip(temp_paths, uploaded_files)}
+                for chunk in chunks:
+                    if chunk.get("source") in path_to_name:
+                        chunk["source"] = path_to_name[chunk["source"]]
                 st.session_state.chunks = chunks
                 st.success(f"✓ Parsed {len(chunks)} chunks from {len(uploaded_files)} document(s)")
 

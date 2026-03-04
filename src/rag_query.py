@@ -6,6 +6,7 @@ Orchestrates retrieval and presentation of relevant text chunks
 from ESG reports based on natural language queries.
 """
 
+import re
 from typing import List, Dict, Tuple, Optional
 from src.embeddings import EmbeddingManager
 
@@ -149,6 +150,74 @@ class RAGQueryEngine:
             "context": "\n".join(context_parts),
             "sources": sorted(list(seen_sources)),
             "num_results": len(results)
+        }
+
+    def synthesize_answer(self, question: str, results: List[Dict]) -> Dict:
+        """
+        Synthesize a concise answer from retrieved chunks using extractive matching.
+
+        Scores sentences by keyword overlap with the question, preferring those
+        that contain numbers/targets. Returns the top sentences with citations.
+
+        Args:
+            question: The user's question
+            results: Retrieved chunks from query()
+
+        Returns:
+            {"answer": "...", "citations": [{"source": "...", "page": N}, ...]}
+        """
+        if not results:
+            return {"answer": "No relevant information found in the reports.", "citations": []}
+
+        # Extract meaningful keywords from the question
+        stop_words = {
+            'what', 'how', 'when', 'where', 'who', 'which', 'are', 'is', 'was', 'were',
+            'the', 'a', 'an', 'and', 'or', 'for', 'of', 'in', 'to', 'by', 'with',
+            'their', 'its', 'does', 'did', 'has', 'have', 'had', 'be', 'been',
+            'company', 'report', 'esg', 'please', 'tell', 'me', 'about'
+        }
+        query_keywords = {
+            w for w in re.findall(r'\b\w+\b', question.lower())
+            if w not in stop_words and len(w) > 2
+        }
+
+        # Score each sentence across the top chunks
+        scored = []
+        for result in results[:5]:
+            text = result['text'].replace('\n', ' ')
+            sentences = [s.strip() for s in re.split(r'(?<=[.!?])\s+', text) if len(s.strip()) > 40]
+            for sent in sentences:
+                sent_words = set(re.findall(r'\b\w+\b', sent.lower()))
+                keyword_overlap = len(query_keywords & sent_words)
+                has_number = bool(re.search(r'\d', sent))
+                score = keyword_overlap * 2 + (1 if has_number else 0)
+                if score > 0:
+                    scored.append((score, sent, result['source'], result['page']))
+
+        scored.sort(key=lambda x: x[0], reverse=True)
+
+        # Build answer from top unique sentences
+        answer_parts = []
+        citations = []
+        seen = set()
+
+        for _, sent, source, page in scored[:3]:
+            norm = sent[:60].lower()
+            if norm not in seen:
+                seen.add(norm)
+                answer_parts.append(sent.strip().rstrip('.') + '.')
+                if not any(c['source'] == source and c['page'] == page for c in citations):
+                    citations.append({"source": source, "page": page})
+
+        # Fallback: use first 400 chars of best chunk
+        if not answer_parts:
+            best = results[0]
+            answer_parts.append(best['text'][:400].strip())
+            citations.append({"source": best['source'], "page": best['page']})
+
+        return {
+            "answer": " ".join(answer_parts),
+            "citations": citations
         }
 
     def compare_sources(self, question: str,
