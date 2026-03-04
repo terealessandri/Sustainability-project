@@ -4,6 +4,40 @@ This log documents every step of the development process, including decisions ma
 
 ---
 
+## 2026-03-04 | Streamlit Community Cloud Deployment & Architecture Optimization
+
+**What**: Deploy app to Streamlit Community Cloud and resolve runtime constraints
+**Why**: Public demo required; free tier has 1 GB RAM and shared CPU limits
+
+**Issues encountered & resolved**:
+- `faiss-cpu==1.8.0` had no Python 3.13 wheels → loosened all `==` pins to `>=`
+- `en_core_web_sm` not installed via `setup.sh` (not executed by Streamlit Cloud) → installed as pip URL dependency in `requirements.txt`
+- `facebook/bart-large-mnli` (1.6 GB) exceeds free tier RAM → replaced with lighter approach
+- Zero-shot NLI pipeline on 300+ chunks too slow for CPU (hours) → replaced with keyword matching
+
+**Architecture decision — SDG Classifier**:
+
+Replaced NLI-based zero-shot classifier (`facebook/bart-large-mnli`, 1.6 GB) with a
+**keyword-based TF-IDF classifier**. For each of the 17 SDGs, a curated set of
+domain-specific ESG keywords is matched against the chunk text. The hit rate is
+normalized to a 0–1 confidence score.
+
+Rationale:
+- ESG terminology is highly domain-specific and stable → keywords are reliable signals
+- Zero-shot NLI requires 1 forward pass per chunk × per label = O(N × 17) inferences
+- Keyword matching is O(N) and runs in <1 second for 300+ chunks
+- Accuracy is sufficient for POC/academic context; many production ESG tools use similar approaches
+
+**Deployment config added**:
+- `packages.txt` — `libgomp1` for FAISS on Linux
+- `runtime.txt` — Python 3.11 pin (ignored by Streamlit Cloud; kept for reference)
+- All `@st.cache_resource` decorators added to model loaders (sentence-transformers, spaCy)
+
+**Results**: ✅ App deployed and functional at Streamlit Community Cloud
+**Next Step**: UI improvements post-deployment
+
+---
+
 ## 2026-02-17 | Step 1: Project Scaffolding
 
 **What**: Initialize project structure and repository

@@ -17,7 +17,7 @@ ESG TruthBot Analyzer is a comprehensive NLP system that analyzes ESG (Environme
 ### Key Capabilities
 
 - **📄 PDF Processing**: Automatic text extraction and semantic chunking
-- **🎯 SDG Classification**: Zero-shot classification into 17 UN Sustainable Development Goals
+- **🎯 SDG Classification**: Keyword-based classification into 17 UN Sustainable Development Goals
 - **📊 Metric Extraction**: Automated KPI detection (emissions, percentages, currency, targets)
 - **🔍 Greenwashing Detection**: Multi-signal transparency scoring (0-100 scale)
 - **💬 Semantic Search**: RAG-based Q&A over multiple reports
@@ -31,25 +31,22 @@ ESG TruthBot Analyzer is a comprehensive NLP system that analyzes ESG (Environme
 ### Prerequisites
 
 - Python 3.10 or higher
-- 8GB RAM minimum (16GB recommended)
-- ~5GB disk space for models
+- 1GB RAM minimum
+- ~500MB disk space
 
 ### Installation
 
 ```bash
 # Clone the repository
 git clone <repository-url>
-cd TrushBot
+cd sustainability-project
 
 # Create virtual environment (recommended)
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 
-# Install dependencies
+# Install dependencies (includes spaCy model)
 pip install -r requirements.txt
-
-# Download spaCy model
-python -m spacy download en_core_web_sm
 ```
 
 ### Running the Application
@@ -121,8 +118,8 @@ The application will open in your browser at `http://localhost:8501`
                     ▼                         ▼
          ┌──────────────────┐    ┌──────────────────┐
          │  SDG Classifier  │    │  Metric          │
-         │  (BART-mnli)     │    │  Extractor       │
-         │  Zero-shot       │    │  (spaCy)         │
+         │  (keyword-based) │    │  Extractor       │
+         │  TF-IDF match    │    │  (spaCy)         │
          └────────┬─────────┘    └────────┬─────────┘
                   │                       │
                   └───────────┬───────────┘
@@ -154,9 +151,9 @@ The application will open in your browser at `http://localhost:8501`
 ## 🛠️ Technology Stack
 
 ### Core NLP
-- **sentence-transformers** (all-MiniLM-L6-v2) — 384-dim embeddings
+- **sentence-transformers** (all-MiniLM-L6-v2) — 384-dim embeddings for semantic search
 - **FAISS** — Vector similarity search
-- **BART-large-mnli** — Zero-shot SDG classification
+- **Keyword-based SDG classifier** — TF-IDF-style matching across 17 UN SDGs
 - **spaCy** (en_core_web_sm) — Pattern-based metric extraction
 
 ### Processing
@@ -306,10 +303,10 @@ for doc in comparison['documents']:
 
 This project demonstrates:
 
-- **Zero-shot learning** for domain-specific classification without training data
-- **Multi-signal NLP analysis** combining embeddings, classification, and rule-based extraction
-- **Explainable AI** with transparent component scoring
-- **Production-quality code** with comprehensive testing and documentation
+- **Domain-specific NLP** — keyword-based SDG classification tailored to ESG terminology
+- **Multi-signal analysis** — combining semantic embeddings, pattern matching, and rule-based extraction
+- **Explainable AI** — transparent component scoring with interpretable signals
+- **Production-quality code** — comprehensive testing, documentation, and cloud deployment
 
 **Developed for**: Academic evaluation
 **Purpose**: Demonstrate practical NLP applications in ESG/sustainability domain
@@ -319,13 +316,11 @@ This project demonstrates:
 
 ## 🔧 Troubleshooting
 
-### Model Download Issues
+### spaCy model missing
 
+The `en_core_web_sm` model is installed automatically via `requirements.txt`.
+If running locally and it's missing:
 ```bash
-# If BART model fails to download
-python -c "from transformers import pipeline; pipeline('zero-shot-classification', model='facebook/bart-large-mnli')"
-
-# If spaCy model missing
 python -m spacy download en_core_web_sm
 ```
 
@@ -333,13 +328,12 @@ python -m spacy download en_core_web_sm
 
 - Reduce `chunk_size` in `pdf_parser.py` (default: 300 words)
 - Process fewer PDFs at once
-- Increase system RAM if possible
 
 ### Slow Processing
 
-- First run downloads models (~2GB total)
-- Subsequent runs use cached models
-- BART classification is slowest step (~10 sec per chunk)
+- First run downloads sentence-transformers model (~80MB)
+- Subsequent runs use the cached model
+- SDG classification is near-instant (keyword matching)
 
 ---
 

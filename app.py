@@ -159,7 +159,7 @@ if pages[page] == "home":
         - **PDF Processing**: PyMuPDF
         - **Embeddings**: sentence-transformers (all-MiniLM-L6-v2)
         - **Vector Search**: FAISS
-        - **SDG Classification**: BART-large-mnli (zero-shot)
+        - **SDG Classification**: Keyword-based NLP (TF-IDF matching, 17 SDGs)
         - **Metric Extraction**: spaCy (pattern matching)
         - **Similarity**: Cosine similarity on embeddings
         """)
