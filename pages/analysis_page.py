@@ -6,6 +6,9 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 from greenwash_scorer import GreenwashScorer
+from sdg_classifier import SDG_DEFINITIONS
+
+SDG_LABEL = {sdg_id: f"{sdg_id} – {name}" for sdg_id, name, _ in SDG_DEFINITIONS}
 
 
 def render():
@@ -97,8 +100,8 @@ def render():
 
                 sdg_df = pd.DataFrame([
                     {
-                        "SDG": sdg_id,
-                        "Score": data['score'],
+                        "SDG": SDG_LABEL.get(sdg_id, sdg_id),
+                        "Score": round(data['score'], 1),
                         "Risk": data['risk_level'],
                         "Mentions": data['chunk_count']
                     }

@@ -60,7 +60,7 @@ st.markdown("""
 
 # Main header
 st.markdown('<h1 class="main-header">🌱 ESG TruthBot Analyzer</h1>', unsafe_allow_html=True)
-st.markdown('<p class="sub-header">NLP-Powered Greenwashing Detection for ESG Reports</p>', unsafe_allow_html=True)
+st.markdown('<p class="sub-header">RAG-Powered ESG Intelligence & Greenwashing Detection</p>', unsafe_allow_html=True)
 
 # Sidebar navigation
 st.sidebar.title("Navigation")
@@ -113,22 +113,22 @@ if pages[page] == "home":
         st.markdown("### 🔬 How It Works")
         st.write("""
         1. **Upload** ESG reports (PDF)
-        2. **Parse** & chunk text semantically
-        3. **Classify** into 17 UN SDGs
-        4. **Extract** KPIs (emissions, %, $)
-        5. **Analyze** language authenticity
+        2. **Chunk** text into semantic passages
+        3. **Embed** chunks into vector index (FAISS)
+        4. **RAG Q&A**: retrieve + synthesize answers
+        5. **Classify** into 17 UN SDGs (keyword search)
         6. **Score** transparency (0-100)
         """)
 
     with col3:
         st.markdown("### 📊 Key Features")
         st.write("""
-        - Zero-shot SDG classification
-        - Semantic search (RAG)
+        - **RAG Q&A**: direct answers from reports
+        - Semantic search (vector embeddings)
+        - Keyword-based SDG classification
         - Metric extraction & validation
         - Copy-paste detection
-        - Uniqueness scoring
-        - Risk-level classification
+        - Transparency risk scoring (0-100)
         """)
 
     st.markdown("---")
@@ -156,12 +156,13 @@ if pages[page] == "home":
     # Tech stack
     with st.expander("🛠️ Technology Stack"):
         st.write("""
-        - **PDF Processing**: PyMuPDF
-        - **Embeddings**: sentence-transformers (all-MiniLM-L6-v2)
-        - **Vector Search**: FAISS
+        - **RAG Pipeline**: FAISS retrieval → extractive answer synthesis
+        - **Embeddings**: sentence-transformers (all-MiniLM-L6-v2, 384-dim)
+        - **Vector Store**: FAISS (cosine similarity search)
         - **SDG Classification**: Keyword-based NLP (TF-IDF matching, 17 SDGs)
         - **Metric Extraction**: spaCy (pattern matching)
-        - **Similarity**: Cosine similarity on embeddings
+        - **PDF Processing**: PyMuPDF
+        - **No external API needed** — all models run locally
         """)
 
     # Academic note
