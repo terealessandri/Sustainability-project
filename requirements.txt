@@ -2,15 +2,15 @@
 # Python 3.10+
 
 # Core NLP & ML
-sentence-transformers==2.7.0     # Embeddings (all-MiniLM-L6-v2)
-transformers==4.40.0             # HuggingFace models (BART)
+sentence-transformers>=2.7.0     # Embeddings (all-MiniLM-L6-v2)
+transformers>=4.40.0             # HuggingFace models (BART)
 torch>=2.0.0                     # PyTorch backend
 faiss-cpu>=1.9.0                 # Vector similarity search (1.9+ supports Python 3.13)
 spacy>=3.7.4                     # NLP toolkit for entity extraction
 
 # Document Processing
 PyMuPDF>=1.24.0                  # PDF text extraction
-nltk==3.8.1                      # Text preprocessing utilities
+nltk>=3.8.1                      # Text preprocessing utilities
 
 # Data & Math
 numpy>=1.21.0                    # faiss-cpu 1.9+ supports NumPy 2.x
@@ -23,5 +23,5 @@ matplotlib>=3.8.3                # Plotting and visualizations
 seaborn>=0.13.2                  # Statistical visualizations
 
 # Utilities
-python-dotenv==1.0.1             # Environment configuration
-tqdm==4.66.2                     # Progress bars
+python-dotenv>=1.0.1             # Environment configuration
+tqdm>=4.66.2                     # Progress bars
