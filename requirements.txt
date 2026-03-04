@@ -6,7 +6,8 @@ sentence-transformers>=2.7.0     # Embeddings (all-MiniLM-L6-v2)
 transformers>=4.40.0             # HuggingFace models (BART)
 torch>=2.0.0                     # PyTorch backend
 faiss-cpu>=1.9.0                 # Vector similarity search (1.9+ supports Python 3.13)
-spacy>=3.7.4                     # NLP toolkit for entity extraction
+spacy>=3.8.0,<3.9.0              # NLP toolkit for entity extraction
+en-core-web-sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl
 
 # Document Processing
 PyMuPDF>=1.24.0                  # PDF text extraction
