@@ -14,13 +14,13 @@ nltk==3.8.1                      # Text preprocessing utilities
 
 # Data & Math
 numpy>=1.21.0                    # faiss-cpu 1.9+ supports NumPy 2.x
-pandas==2.2.1
-scikit-learn==1.4.1              # Cosine similarity, metrics
+pandas>=2.2.1
+scikit-learn>=1.4.1              # Cosine similarity, metrics
 
 # Web UI
 streamlit>=1.32.0                # Interactive dashboard
-matplotlib==3.8.3                # Plotting and visualizations
-seaborn==0.13.2                  # Statistical visualizations
+matplotlib>=3.8.3                # Plotting and visualizations
+seaborn>=0.13.2                  # Statistical visualizations
 
 # Utilities
 python-dotenv==1.0.1             # Environment configuration
