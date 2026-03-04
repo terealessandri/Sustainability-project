@@ -10,9 +10,20 @@ from transformers import pipeline
 from typing import List, Dict, Tuple, Optional
 from collections import defaultdict
 import warnings
+import streamlit as st
 
 # Suppress transformers warnings for cleaner output
 warnings.filterwarnings('ignore', category=FutureWarning)
+
+
+@st.cache_resource
+def _load_zero_shot_pipeline(model_name: str):
+    """Load and cache the zero-shot classification pipeline across Streamlit sessions."""
+    return pipeline(
+        "zero-shot-classification",
+        model=model_name,
+        device=-1
+    )
 
 
 # UN Sustainable Development Goals with descriptions
@@ -85,13 +96,7 @@ class SDGClassifier:
         if self.classifier is None:
             print(f"Loading zero-shot classifier: {self.model_name}...")
             print("(This may take a few minutes on first run - downloading ~1.6GB)")
-
-            self.classifier = pipeline(
-                "zero-shot-classification",
-                model=self.model_name,
-                device=-1  # Use CPU (-1) or GPU (0)
-            )
-
+            self.classifier = _load_zero_shot_pipeline(self.model_name)
             print(f"✓ Model loaded: {self.model_name}")
 
     def classify_text(self, text: str,

@@ -12,6 +12,13 @@ import numpy as np
 from typing import List, Dict, Tuple, Optional
 import pickle
 import os
+import streamlit as st
+
+
+@st.cache_resource
+def _load_sentence_transformer(model_name: str):
+    """Load and cache the SentenceTransformer model across Streamlit sessions."""
+    return SentenceTransformer(model_name)
 
 
 class EmbeddingManager:
@@ -47,7 +54,7 @@ class EmbeddingManager:
         """
         if self.model is None:
             print(f"Loading model: {self.model_name}...")
-            self.model = SentenceTransformer(self.model_name)
+            self.model = _load_sentence_transformer(self.model_name)
             print(f"✓ Model loaded: {self.dimension}-dimensional embeddings")
 
     def embed_chunks(self, chunks: List[Dict[str, any]],

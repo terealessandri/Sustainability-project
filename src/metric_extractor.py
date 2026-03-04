@@ -11,6 +11,13 @@ from spacy.matcher import Matcher
 from typing import List, Dict, Optional, Tuple
 import re
 from collections import defaultdict
+import streamlit as st
+
+
+@st.cache_resource
+def _load_spacy_model(model_name: str):
+    """Load and cache the spaCy model across Streamlit sessions."""
+    return spacy.load(model_name)
 
 
 class MetricExtractor:
@@ -44,7 +51,7 @@ class MetricExtractor:
         """Load spaCy model and initialize pattern matchers."""
         if self.nlp is None:
             print(f"Loading spaCy model: {self.model_name}...")
-            self.nlp = spacy.load(self.model_name)
+            self.nlp = _load_spacy_model(self.model_name)
             self.matcher = Matcher(self.nlp.vocab)
 
             # Add patterns
