@@ -4,6 +4,43 @@ This log documents every step of the development process, including decisions ma
 
 ---
 
+## 2026-03-04 | UI Improvements: RAG Answer Synthesis, SDG Names, Source Filenames, Branding
+
+**What**: Post-deployment UX improvements across all pages
+**Why**: System was functional but required too much effort from end users
+
+**Changes**:
+
+1. **RAG Q&A redesign** (`rag_page.py`, `rag_query.py`)
+   - Added `synthesize_answer()` to `RAGQueryEngine`: scores sentences by keyword overlap with the
+     question (boosting sentences with numbers/metrics), deduplicates, and assembles a concise
+     paragraph answer with source citations — no external LLM or API needed
+   - RAG page now shows a synthesized answer in a highlighted box first, then source passages in
+     a collapsible expander; Compare Documents section also shows per-doc synthesized answers
+
+2. **Source filenames** (`upload_page.py`)
+   - Fixed bug: `pdf_parser.py` stores `os.path.basename()` of the temp path, not the full path;
+     fixed lookup key to use `os.path.basename(tmp)` so original PDF names show everywhere
+
+3. **SDG full names** (`sdg_page.py`, `analysis_page.py`)
+   - SDG IDs now show as "SDG 13 – Climate Action" in bar charts, heatmap columns (rotated 45°),
+     selectbox dropdowns, and the Greenwashing SDG-specific scores table
+
+4. **Branding & copy** (`app.py`, `README.md`)
+   - Subtitle updated to "RAG-Powered ESG Intelligence & Greenwashing Detection"
+   - Home page reframed to lead with RAG pipeline and GenAI framing
+   - Tech stack expander and README aligned to reflect the GenAI/RAG-first positioning
+
+5. **Performance fix** (`similarity.py`, `analysis_page.py`, `greenwash_scorer.py`)
+   - `calculate_uniqueness_score()` now uses pre-computed FAISS embeddings (matrix multiply)
+     instead of O(n×m) re-embedding calls — eliminated the Greenwashing page hang
+   - Comparison result cached in `st.session_state`; `format_score_report()` accepts
+     `precomputed_comparison` to avoid computing it a second time for the export button
+
+**Results**: ✅ All 5 pages functional, RAG gives direct answers, no more temp filenames, SDG names visible throughout
+
+---
+
 ## 2026-03-04 | Streamlit Community Cloud Deployment & Architecture Optimization
 
 **What**: Deploy app to Streamlit Community Cloud and resolve runtime constraints

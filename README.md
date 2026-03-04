@@ -1,6 +1,6 @@
 # ESG TruthBot Analyzer
 
-**An NLP-Powered Greenwashing Detection System for ESG Reports**
+**RAG-Powered ESG Intelligence & Greenwashing Detection**
 *Academic Proof of Concept — University Project*
 
 ![Status](https://img.shields.io/badge/status-complete-success)
@@ -12,15 +12,16 @@
 
 ## 📋 Overview
 
-ESG TruthBot Analyzer is a comprehensive NLP system that analyzes ESG (Environmental, Social, Governance) reports to detect potential greenwashing. The system combines multiple detection signals to calculate transparency scores and identify red flags in corporate sustainability claims.
+ESG TruthBot Analyzer is a Generative AI system that analyzes ESG (Environmental, Social, Governance) reports using a RAG (Retrieval-Augmented Generation) pipeline. Users can ask natural language questions and receive direct, cited answers synthesized from the documents. The system also classifies content into UN SDGs, extracts KPIs, and scores corporate transparency to detect potential greenwashing.
 
 ### Key Capabilities
 
+- **💬 RAG Q&A**: Ask questions and get direct synthesized answers with source citations
 - **📄 PDF Processing**: Automatic text extraction and semantic chunking
+- **🧠 Vector Search**: FAISS-backed semantic search over report embeddings
 - **🎯 SDG Classification**: Keyword-based classification into 17 UN Sustainable Development Goals
 - **📊 Metric Extraction**: Automated KPI detection (emissions, percentages, currency, targets)
 - **🔍 Greenwashing Detection**: Multi-signal transparency scoring (0-100 scale)
-- **💬 Semantic Search**: RAG-based Q&A over multiple reports
 - **🔗 Similarity Analysis**: Cross-company comparison and copy-paste detection
 - **🌐 Interactive UI**: Streamlit dashboard with 5 analysis pages
 
@@ -150,13 +151,14 @@ The application will open in your browser at `http://localhost:8501`
 
 ## 🛠️ Technology Stack
 
-### Core NLP
+### GenAI / RAG Pipeline
+- **RAG Q&A**: FAISS retrieval → extractive answer synthesis (no external LLM API)
 - **sentence-transformers** (all-MiniLM-L6-v2) — 384-dim embeddings for semantic search
-- **FAISS** — Vector similarity search
+- **FAISS** — Vector store for fast cosine similarity search
 - **Keyword-based SDG classifier** — TF-IDF-style matching across 17 UN SDGs
-- **spaCy** (en_core_web_sm) — Pattern-based metric extraction
 
 ### Processing
+- **spaCy** (en_core_web_sm) — Pattern-based metric extraction
 - **PyMuPDF** — PDF text extraction
 - **scikit-learn** — Cosine similarity
 - **NumPy, pandas** — Data processing
@@ -165,7 +167,7 @@ The application will open in your browser at `http://localhost:8501`
 - **Streamlit** — Web dashboard
 - **matplotlib, seaborn** — Visualizations
 
-**All models run locally — No API costs!**
+**All models run locally — No API costs, no data sent externally!**
 
 ---
 
@@ -303,14 +305,16 @@ for doc in comparison['documents']:
 
 This project demonstrates:
 
-- **Domain-specific NLP** — keyword-based SDG classification tailored to ESG terminology
-- **Multi-signal analysis** — combining semantic embeddings, pattern matching, and rule-based extraction
+- **RAG pipeline** — FAISS retrieval + extractive synthesis for document Q&A without an external LLM
+- **Semantic embeddings** — sentence-transformers for dense vector representations and cosine search
+- **Keyword search** — TF-IDF-style SDG classification tailored to ESG domain terminology
+- **Multi-signal analysis** — combining embeddings, pattern matching, and rule-based extraction
 - **Explainable AI** — transparent component scoring with interpretable signals
-- **Production-quality code** — comprehensive testing, documentation, and cloud deployment
+- **Production-quality code** — testing, documentation, and Streamlit Community Cloud deployment
 
-**Developed for**: Academic evaluation
-**Purpose**: Demonstrate practical NLP applications in ESG/sustainability domain
-**Approach**: Proof-of-concept system with real-world applicability
+**Developed for**: Academic evaluation (GenAI course)
+**Purpose**: Demonstrate practical GenAI/RAG applications in the ESG/sustainability domain
+**Approach**: Proof-of-concept with real-world applicability — RAG, semantic search, keyword classification
 
 ---
 
@@ -345,7 +349,7 @@ Academic project — for educational purposes only.
 
 ## 👥 Contributors
 
-Built with Claude Sonnet 4.5 for academic demonstration.
+Built with Claude Sonnet 4.6 for academic demonstration.
 
 ---
 
